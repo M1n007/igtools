@@ -1,0 +1,23 @@
+{
+  "name": "instagram-tools",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "delay": "^4.2.0",
+    "https-proxy-agent": "^2.2.1",
+    "instagram-private-api": "^0.10.1",
+    "moment": "^2.24.0",
+    "mysql": "^2.17.1",
+    "node-fetch": "^2.3.0",
+    "readline-sync": "^1.4.9",
+    "request-promise": "^4.2.4",
+    "url": "^0.11.0",
+    "username-generator": "^1.1.0"
+  }
+}
