@@ -28,7 +28,7 @@ const functionRegister = (username, id) =>
     fetch("https://www.instagram.com/accounts/web_create_ajax/", {
       method: "POST",
       body: params,
-      //   agent: new HttpsProxyAgent("http://209.97.142.139:3128/"),
+        // agent: new HttpsProxyAgent("http://209.97.142.139:3128/"),
       headers: {
         "cache-Control": "no-cache",
         "content-type": "application/x-www-form-urlencoded",
