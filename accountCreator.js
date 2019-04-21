@@ -28,7 +28,6 @@ const functionRegister = (username, id) =>
     fetch("https://www.instagram.com/accounts/web_create_ajax/", {
       method: "POST",
       body: params,
-      //   agent: new HttpsProxyAgent("http://209.97.142.139:3128/"),
       headers: {
         "cache-Control": "no-cache",
         "content-type": "application/x-www-form-urlencoded",
@@ -62,8 +61,9 @@ const genSes = length =>
     for (let index = 0; index < 100; index++) {
       const id = await genSes(32);
       const username = UsernameGenerator.generateUsername();
-      await delay(50000);
+      await delay(120000);
       const regist = await functionRegister(username, id);
+
       if (regist.account_created === true) {
         await console.log(
           "[" +
