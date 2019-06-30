@@ -3,15 +3,15 @@ const UsernameGenerator = require("username-generator");
 const HttpsProxyAgent = require("https-proxy-agent");
 const delay = require("delay");
 const moment = require("moment");
-const colors = require("./lib/colors.ts");
+const colors = require("./lib/colors.js");
 const { URLSearchParams } = require("url");
 const mysql = require("mysql");
 
 const functionLogin = id =>
   new Promise((resolve, reject) => {
     const params = new URLSearchParams();
-    params.append("username", `user`);
-    params.append("password", "pass");
+    params.append("username", `amin4udin`);
+    params.append("password", "Berak321kiky");
     params.append("queryParams", `{"source":"auth_switcher"}`);
     params.append("optIntoOneTap", false);
 
