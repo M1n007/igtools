@@ -12,6 +12,7 @@
     "async-file": "^2.0.2",
     "delay": "^4.2.0",
     "dotenv": "^8.0.0",
+    "fetch-cookie": "^0.7.2",
     "https-proxy-agent": "^2.2.1",
     "instagram-private-api": "^0.10.1",
     "moment": "^2.24.0",

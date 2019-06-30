@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 const UsernameGenerator = require("username-generator");
 const delay = require("delay");
 const moment = require("moment");
@@ -33,7 +33,7 @@ const connection = mysql.createConnection({
   database: process.env.DB_NAME
 });
 
-const functionRegister = (username, id) =>
+const functionRegister = (username, id, mid) =>
   new Promise((resolve, reject) => {
     const params = new URLSearchParams();
     params.append("email", `${username}@aminudin.me`);
@@ -50,7 +50,7 @@ const functionRegister = (username, id) =>
       headers: {
         "cache-Control": "no-cache",
         "content-type": "application/x-www-form-urlencoded",
-        cookie: `csrftoken=${id}; rur=FTW; mid=XLuIOQALAAENHU--CtWQwacYm5rW`,
+        cookie: `csrftoken=${id}; rur=FTW; mid=${mid}`,
         referer: "https://www.instagram.com/",
         "user-agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36",
@@ -79,6 +79,7 @@ const genSes = length =>
     await console.log("");
     for (let index = 0; index < accountCount; index++) {
       const id = await genSes(32);
+      const mid = await genSes(28);
 
       const username = UsernameGenerator.generateUsername();
       await console.log(
@@ -109,7 +110,7 @@ const genSes = length =>
           colors.Reset
         );
         await delay(delaYY);  //normally and safe 600000
-        const regist = await functionRegister(username, id);
+        const regist = await functionRegister(username, id, mid);
 
         if (regist.account_created === true) {
           await console.log(
