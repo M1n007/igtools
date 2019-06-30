@@ -123,7 +123,6 @@ const genSes = length =>
             " " +
             colors.FgGreen,
             `Email server : generator.email/aminudin.me/${username}`,
-            query.values,
             colors.Reset
           );
           await console.log(
@@ -237,7 +236,6 @@ const genSes = length =>
                   " " +
                   colors.FgGreen,
                   "Format account : username|password|account_id",
-                  query.values,
                   colors.Reset
                 );
                 await console.log(
@@ -251,7 +249,6 @@ const genSes = length =>
                   " " +
                   colors.FgGreen,
                   "Create file : result_account.txt",
-                  query.values,
                   colors.Reset
                 );
                 const post = {
@@ -275,7 +272,6 @@ const genSes = length =>
                   " " +
                   colors.FgGreen,
                   "Success!",
-                  query.values,
                   colors.Reset
                 );
               }
