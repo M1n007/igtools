@@ -5,6 +5,7 @@ const moment = require("moment");
 const colors = require("./lib/colors");
 const { URLSearchParams } = require("url");
 const login = require("./lib/login");
+const getCookie = require('./lib/getCookie');
 const mysql = require("mysql");
 const readlineSync = require('readline-sync');
 const fs = require("async-file");
@@ -33,7 +34,7 @@ const connection = mysql.createConnection({
   database: process.env.DB_NAME
 });
 
-const functionRegister = (username, id, mid) =>
+const functionRegister = (username, csrf, rur, mid) =>
   new Promise((resolve, reject) => {
     const params = new URLSearchParams();
     params.append("email", `${username}@aminudin.me`);
@@ -50,11 +51,11 @@ const functionRegister = (username, id, mid) =>
       headers: {
         "cache-Control": "no-cache",
         "content-type": "application/x-www-form-urlencoded",
-        cookie: `csrftoken=${id}; rur=FTW; mid=${mid}`,
+        cookie: `${csrf}; ${rur}; ${mid}`,
         referer: "https://www.instagram.com/",
         "user-agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36",
-        "x-csrftoken": id
+        "x-csrftoken": csrf.split('=')[1]
       }
     })
       .then(res => res.json())
@@ -78,8 +79,6 @@ const genSes = length =>
     await console.log("");
     await console.log("");
     for (let index = 0; index < accountCount; index++) {
-      const id = await genSes(32);
-      const mid = await genSes(28);
 
       const username = UsernameGenerator.generateUsername();
       await console.log(
@@ -110,7 +109,11 @@ const genSes = length =>
           colors.Reset
         );
         await delay(delaYY);  //normally and safe 600000
-        const regist = await functionRegister(username, id, mid);
+        const Cookie = await getCookie.functionGetCookie();
+        const csrfToken = Cookie[7].split(';')[0];
+        const rur = Cookie[8].split(';')[0];
+        const mid = Cookie[9].split(';')[0];
+        const regist = await functionRegister(username, csrfToken, rur, mid);
 
         if (regist.account_created === true) {
           await console.log(
@@ -168,7 +171,7 @@ const genSes = length =>
               colors.Reset
             );
             await delay(10000);
-            const LoginToDO = await login(username, "berak321amin");
+            const LoginToDO = await login(username, "berak321amin", csrfToken, rur, mid);
             if (LoginToDO.authenticated === true) {
               await console.log(
                 "[" +
