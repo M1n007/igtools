@@ -36,6 +36,7 @@ const connection = mysql.createConnection({
 
 const functionRegister = (username, csrf, rur, mid) =>
   new Promise((resolve, reject) => {
+    console.log(`${csrf}; ${rur}; ${mid}`)
     const params = new URLSearchParams();
     params.append("email", `${username}@aminudin.me`);
     params.append("password", "berak321amin");
