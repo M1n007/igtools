@@ -32,7 +32,7 @@ const genSes = length =>
 
 
     await connection.query(
-        `SELECT * FROM ray_user`,
+        `SELECT * FROM user`,
         function (error, results, fields) {
             if (error) return 'error';
             delay(5000)
@@ -45,10 +45,6 @@ const genSes = length =>
     await delay(5000);
     for (let index = 0; index < newData.length; index++) {
         const element = newData[index];
-        // const element = {
-        //     username: 'amin4udin',
-        //     password: 'berak321kiky'
-        // }
         await delay(2000)
         const Cookie = await getCookie.functionGetCookie();
         const csrfToken = Cookie[7].split(';')[0];

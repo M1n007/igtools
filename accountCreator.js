@@ -26,7 +26,6 @@ if (choiseDb.toLowerCase() === 'y' && process.env.DB_HOST === 'default') {
   process.exit();
 }
 
-
 const connection = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -36,9 +35,8 @@ const connection = mysql.createConnection({
 
 const functionRegister = (username, csrf, rur, mid) =>
   new Promise((resolve, reject) => {
-    console.log(`${csrf}; ${rur}; ${mid}`)
     const params = new URLSearchParams();
-    params.append("email", `${username}@aminudin.me`);
+    params.append("email", `${username}@pengangguran.me`);
     params.append("password", "berak321amin");
     params.append("username", username);
     params.append("first_name", username);
@@ -172,7 +170,7 @@ const genSes = length =>
               colors.Reset
             );
             await delay(10000);
-            const LoginToDO = await login(username, "berak321amin", csrfToken, rur, mid);
+            const LoginToDO = await login.functionLogin(username, "berak321amin", csrfToken, rur, mid);
             if (LoginToDO.authenticated === true) {
               await console.log(
                 "[" +

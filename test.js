@@ -12,7 +12,7 @@ const connection = mysql.createConnection({
 
 (async () => {
 
-    await fs.readFile('accounig.txt', async function (err, data) {
+    await fs.readFile('ig.txt', async function (err, data) {
         if (err) throw err;
         const array = data
             .toString()
