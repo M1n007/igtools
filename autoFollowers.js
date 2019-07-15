@@ -7,6 +7,7 @@ const getCookie = require('./lib/getCookie');
 const moment = require('moment');
 const colors = require("./lib/colors");
 const UA = require('./lib/utils/uaGen');
+const getUserId = require('./lib/getUSerId');
 const readlineSync = require('readline-sync');
 require('dotenv').config();
 
