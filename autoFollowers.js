@@ -7,6 +7,7 @@ const getCookie = require('./lib/getCookie');
 const moment = require('moment');
 const colors = require("./lib/colors");
 const UA = require('./lib/utils/uaGen');
+const readlineSync = require('readline-sync');
 require('dotenv').config();
 
 const connection = mysql.createConnection({
