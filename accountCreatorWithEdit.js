@@ -6,6 +6,7 @@ const colors = require("./lib/colors");
 const { URLSearchParams } = require("url");
 const login = require("./lib/login");
 const getCookie = require('./lib/getCookie');
+const updateProfile = require('./lib/profileEdit');
 const mysql = require("mysql");
 const readlineSync = require('readline-sync');
 const fs = require("async-file");
@@ -172,6 +173,8 @@ const genSes = length =>
             );
             await delay(10000);
             const LoginToDO = await login.functionLogin(username, "berak321amin", csrfToken, rur, mid, user_agent);
+            const getCookies = await login.functionGetCookie(username, "berak321amin", csrfToken, rur, mid, user_agent);
+
             if (LoginToDO.authenticated === true) {
               await console.log(
                 "[" +
@@ -278,6 +281,42 @@ const genSes = length =>
                   "Success!",
                   colors.Reset
                 );
+              }
+
+
+              if (getCookies.extensions.join().split(',')[9] !== undefined) {
+                const shbid = getCookie.extensions.join().split(',')[1];
+                const shbts = getCookie.extensions.join().split(',')[3];
+                const rur = getCookies.extensions.join().split(',')[5];
+                const ds = getCookies.extensions.join().split(',')[7];
+                const sessionId = getCookies.extensions.join().split(',')[9];
+                const post = {
+                  username: username,
+                  password: "berak321amin"
+                }
+                await delay(1000);
+                const updateProf = await updateProfile.updateProfile(csrfToken, mid, ds, rur, sessionId, shbidddd, shbtsss, username, `${username}@aminudin.me`, user_agent);
+                // if (follow.status === 'ok') {
+                //   console.log(follow, post.username)
+                // }
+                console.log(updateProf);
+              } else {
+                const rur = getCookies.extensions.join().split(',')[1];
+                const ds = getCookies.extensions.join().split(',')[3];
+                const sessionId = getCookies.extensions.join().split(',')[5];
+                const post = {
+                  username: username,
+                  password: "berak321amin"
+                }
+
+                const shbidddd = '';
+                const shbtsss = '';
+                await delay(1000);
+                const updateProf = await updateProfile.updateProfile(csrfToken, mid, ds, rur, sessionId, shbidddd, shbtsss, username, `${username}@aminudin.me`, user_agent);
+                // if (follow.status === 'ok') {
+                //   console.log(follow, post.username)
+                // }
+                console.log(updateProf);
               }
 
             }

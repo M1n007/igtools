@@ -22,6 +22,7 @@ console.log("");
 
 (async () => {
     const userId = await getUserId.functionGetUserId(username);
+    const user_agent = await UA.returnUA();
     await console.log(
         "[" +
         " " +
@@ -49,12 +50,12 @@ console.log("");
                 password: array[igAccount].split(delimiter)[1]
             }
             await delay(delayy)
-            const Cookie = await getCookie.functionGetCookie();
+            const Cookie = await getCookie.functionGetCookie(user_agent);
             const csrfToken = Cookie[7].split(';')[0];
             const rurz = Cookie[8].split(';')[0];
             const mid = Cookie[9].split(';')[0];
-            const LoginToDO = await login.functionLogin(element.username, element.password, csrfToken, rurz, mid);
-            const getCookies = await login.functionGetCookie(element.username, element.password, csrfToken, rurz, mid);
+            const LoginToDO = await login.functionLogin(element.username, element.password, csrfToken, rurz, mid, user_agent);
+            const getCookies = await login.functionGetCookie(element.username, element.password, csrfToken, rurz, mid, user_agent);
             console.log(getCookies.extensions)
             if (LoginToDO.authenticated === true) {
                 if (getCookies.extensions.join().split(',')[9] !== undefined) {
@@ -68,7 +69,7 @@ console.log("");
                         password: element.password
                     }
                     await delay(1000);
-                    const follow = await Follow.functionFollow(csrfToken, mid, ds, rur, sessionId, shbid, shbts, username, userId);
+                    const follow = await Follow.functionFollow(csrfToken, mid, ds, rur, sessionId, shbid, shbts, username, userId, user_agent);
                     if (follow.status === 'ok') {
                         console.log(follow, post.username)
                     }
@@ -85,7 +86,7 @@ console.log("");
                     const shbtsss = '';
 
                     await delay(1000);
-                    const follow = await Follow.functionFollow(csrfToken, mid, ds, rur, sessionId, shbidddd, shbtsss, username, userId);
+                    const follow = await Follow.functionFollow(csrfToken, mid, ds, rur, sessionId, shbidddd, shbtsss, username, userId, user_agent);
                     if (follow.status === 'ok') {
                         console.log(follow, post.username)
                     }
@@ -93,24 +94,6 @@ console.log("");
             }
         }
     })
-
-
-    // await connection.query(
-    //     `SELECT * FROM user`,
-    //     function (error, results, fields) {
-    //         if (error) return 'error';
-    //         delay(5000)
-    //         results.map(test => {
-    //             newData.push(test);
-    //         })
-    //     }
-    // );
-
-    // await delay(5000);
-    // for (let index = 0; index < newData.length; index++) {
-
-
-    // }
 
 
 })();
