@@ -6,6 +6,9 @@ const Follow = require("./lib/follow");
 const getCookie = require('./lib/getCookie');
 const moment = require('moment');
 const colors = require("./lib/colors");
+const UA = require('./lib/utils/uaGen');
+const getUserId = require('./lib/getUSerId');
+const readlineSync = require('readline-sync');
 require('dotenv').config();
 
 const connection = mysql.createConnection({
@@ -15,20 +18,17 @@ const connection = mysql.createConnection({
     database: process.env.DB_NAME
 });
 
+console.log("");
+console.log("");
+const username = readlineSync.question('Masukan username target : ');
+console.log("");
+console.log("");
 
-const genSes = length =>
-    new Promise((resolve, reject) => {
-        var text = "";
-        var possible = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-        for (var i = 0; i < length; i++)
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-        resolve(text);
-    });
 
 (async () => {
     const newData = [];
+    const userId = await getUserId.functionGetUserId(username);
+    const user_agent = await UA.returnUA();
 
 
     await connection.query(
@@ -46,12 +46,12 @@ const genSes = length =>
     for (let index = 0; index < newData.length; index++) {
         const element = newData[index];
         await delay(2000)
-        const Cookie = await getCookie.functionGetCookie();
+        const Cookie = await getCookie.functionGetCookie(user_agent);
         const csrfToken = Cookie[7].split(';')[0];
         const rurz = Cookie[8].split(';')[0];
         const mid = Cookie[9].split(';')[0];
-        const LoginToDO = await login.functionLogin(element.username, element.password, csrfToken, rurz, mid);
-        const getCookies = await login.functionGetCookie(element.username, element.password, csrfToken, rurz, mid);
+        const LoginToDO = await login.functionLogin(element.username, element.password, csrfToken, rurz, mid, user_agent);
+        const getCookies = await login.functionGetCookie(element.username, element.password, csrfToken, rurz, mid, user_agent);
         console.log(getCookies.extensions)
         if (LoginToDO.authenticated === true) {
             if (getCookies.extensions.join().split(',')[9] !== undefined) {
@@ -65,7 +65,7 @@ const genSes = length =>
                     password: element.password
                 }
                 await delay(1000);
-                const follow = await Follow.functionFollow(csrfToken, mid, ds, rur, sessionId, shbid, shbts);
+                const follow = await Follow.functionFollow(csrfToken, mid, ds, rur, sessionId, shbid, shbts, username, userId, user_agent);
                 if (follow.status === 'ok') {
                     console.log(follow, post.username)
                 }
@@ -77,8 +77,11 @@ const genSes = length =>
                     username: element.username,
                     password: element.password
                 }
+
+                const shbidddd = '';
+                const shbtsss = '';
                 await delay(1000);
-                const follow = await Follow.functionFollow(csrfToken, mid, ds, rur, sessionId);
+                const follow = await Follow.functionFollow(csrfToken, mid, ds, rur, sessionId, shbidddd, shbtsss, username, userId, user_agent);
                 if (follow.status === 'ok') {
                     console.log(follow, post.username)
                 }
