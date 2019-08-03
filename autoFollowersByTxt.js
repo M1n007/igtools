@@ -60,8 +60,8 @@ console.log("");
             console.log(getCookies.extensions)
             if (LoginToDO.authenticated === true) {
                 if (getCookies.extensions.join().split(',')[9] !== undefined) {
-                    const shbid = getCookie.extensions.join().split(',')[1];
-                    const shbts = getCookie.extensions.join().split(',')[3];
+                    const shbid = getCookies.extensions.join().split(',')[1];
+                    const shbts = getCookies.extensions.join().split(',')[3];
                     const rur = getCookies.extensions.join().split(',')[5];
                     const ds = getCookies.extensions.join().split(',')[7];
                     const sessionId = getCookies.extensions.join().split(',')[9];
@@ -71,8 +71,10 @@ console.log("");
                     }
                     await delay(1000);
                     const follow = await Follow.functionFollow(csrfToken, mid, ds, rur, sessionId, shbid, shbts, username, userId, user_agent);
-                    if (follow.status === 'ok') {
+                    if (follow !== 'Oops, an error occurred.') {
                         console.log(follow, post.username)
+                    } else {
+                        console.log('Oops, an error occurred. Check account target manually')
                     }
                 } else {
                     const rur = getCookies.extensions.join().split(',')[1];
@@ -88,8 +90,10 @@ console.log("");
 
                     await delay(1000);
                     const follow = await Follow.functionFollow(csrfToken, mid, ds, rur, sessionId, shbidddd, shbtsss, username, userId, user_agent);
-                    if (follow.status === 'ok') {
+                    if (follow !== 'Oops, an error occurred.') {
                         console.log(follow, post.username)
+                    } else {
+                        console.log('Oops, an error occurred. Check account manually')
                     }
                 }
             }
