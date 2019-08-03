@@ -54,7 +54,10 @@ const functionRegister = (username, csrf, rur, mid, user_agent) =>
         cookie: `${csrf}; ${rur}; ${mid}`,
         referer: "https://www.instagram.com/",
         "user-agent": user_agent,
-        "x-csrftoken": csrf.split('=')[1]
+        "x-csrftoken": csrf.split('=')[1],
+        "x-ig-app-id": 936619743392459,
+        "x-instagram-ajax": "1ead163a5727",
+        "x-requested-with": "XMLHttpRequest"
       }
     })
       .then(res => res.json())
