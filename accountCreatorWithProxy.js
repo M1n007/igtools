@@ -12,7 +12,8 @@ const readlineSync = require('readline-sync');
 const fs = require("async-file");
 const UA = require('./lib/utils/uaGen');
 const fss = require("fs");
-const HttpsProxyAgent = require('https-proxy-agent');
+const ProxyCheck = require('./lib/proxyCheck');
+const SocksProxyAgent = require('socks-proxy-agent');
 require('dotenv').config()
 
 console.log("");
@@ -44,7 +45,9 @@ const functionRegister = (username, csrf, rur, mid, user_agent, prox) =>
         params.append("password", "berak321amin");
         params.append("username", username);
         params.append("first_name", `${username.split('1')[0]} ${username.split('1')[1]}`);
+        params.append("client_id", mid);
         params.append("seamless_login_enabled", 1);
+        params.append("gdpr_s", [0, 2, 0, null]);
         params.append("tos_version", "eu");
         params.append("opt_into_one_tap", false);
 
@@ -52,33 +55,32 @@ const functionRegister = (username, csrf, rur, mid, user_agent, prox) =>
             method: "POST",
             body: params,
             headers: {
-                "cache-Control": "no-cache",
-                "content-type": "application/x-www-form-urlencoded",
-                cookie: `${csrf}; ${rur}; ${mid}`,
-                referer: "https://www.instagram.com/",
-                "user-agent": user_agent,
-                "x-csrftoken": csrf.split('=')[1],
-                "x-ig-app-id": 936619743392459,
-                "x-instagram-ajax": "1ead163a5727",
-                "x-requested-with": "XMLHttpRequest"
+                'origin': 'https://www.instagram.com',
+                'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+                'user-agent': user_agent,
+                'x-requested-with': 'XMLHttpRequest',
+                'cookie': `ig_cb=1; ${rur}; ${csrf}; ${mid}`,
+                'x-csrftoken': csrf.split('=')[1],
+                'x-ig-app-id': 936619743392459,
+                'x-instagram-ajax': '1ead163a5727',
+                'content-type': 'application/x-www-form-urlencoded',
+                'accept': '*/*',
+                'referer': 'https://www.instagram.com/',
+                'authority': 'www.instagram.com',
+                'sec-fetch-site': 'same-origin'
             },
-            agent: new HttpsProxyAgent(prox)
+            agent: new SocksProxyAgent(`socks://${prox}`)
         })
-            .then(res => res.json())
-            .then(text => resolve(text))
-            .catch(err => reject(err));
+            .then(res => res.text())
+            .then(text => {
+                console.log(text)
+                resolve(text)
+            })
+            .catch(err => {
+                throw new Error("Owh shit, theres any problem. Wait and create again.");
+            });
     });
 
-const genSes = length =>
-    new Promise((resolve, reject) => {
-        var text = "";
-        var possible = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-        for (var i = 0; i < length; i++)
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-        resolve(text);
-    });
 
 (async function main() {
     try {
@@ -92,51 +94,25 @@ const genSes = length =>
                 .split(" ");
 
             for (let proxy in array) {
-                const prox = array[proxy];
-                const user_agent = await UA.returnUA();
+                const prox = await array[proxy];
+                await console.log(
+                    "[" +
+                    " " +
+                    moment().format("HH:mm:ss") +
+                    " " +
+                    "]" +
+                    " " +
+                    "=>" +
+                    " " +
+                    colors.FgGreen,
+                    "Checking proxy...." + " " + prox,
+                    colors.Reset
+                );
 
-                const username = UsernameGenerator.generateUsername("1");
-                const name = `${username.split('1')[0]} ${username.split('1')[1]}`;
-                await console.log(
-                    "[" +
-                    " " +
-                    moment().format("HH:mm:ss") +
-                    " " +
-                    "]" +
-                    " " +
-                    "=>" +
-                    " " +
-                    colors.FgGreen,
-                    "Proxy :" + " " + prox,
-                    colors.Reset
-                );
-                await console.log(
-                    "[" +
-                    " " +
-                    moment().format("HH:mm:ss") +
-                    " " +
-                    "]" +
-                    " " +
-                    "=>" +
-                    " " +
-                    colors.FgGreen,
-                    "generate username :" + " " + username,
-                    colors.Reset
-                );
-                await console.log(
-                    "[" +
-                    " " +
-                    moment().format("HH:mm:ss") +
-                    " " +
-                    "]" +
-                    " " +
-                    "=>" +
-                    " " +
-                    colors.FgGreen,
-                    "Name :" + " " + name,
-                    colors.Reset
-                );
-                if (username.includes("-") !== true) {
+                const group = await ProxyCheck.getGroups(prox);
+                await delay(5000);
+                const getResults = await ProxyCheck.getResult(group);
+                if (getResults.items) {
                     await console.log(
                         "[" +
                         " " +
@@ -147,59 +123,63 @@ const genSes = length =>
                         "=>" +
                         " " +
                         colors.FgGreen,
-                        "Try to register",
+                        "Proxy working perfectly :" + " " + prox,
                         colors.Reset
                     );
-                    const Cookie = await getCookie.functionGetCookie(user_agent);
-                    const csrfToken = Cookie[7].split(';')[0];
-                    const rur = Cookie[8].split(';')[0];
-                    const mid = Cookie[9].split(';')[0];
-                    await delay(delaYY);  //normally and safe 600000
-                    const regist = await functionRegister(username, csrfToken, rur, mid, user_agent, prox);
+
+                    const user_agent = await UA.returnUA();
+
+                    const username = UsernameGenerator.generateUsername("1");
+                    const name = `${username.split('1')[0]} ${username.split('1')[1]}`;
+                    await console.log(
+                        "[" +
+                        " " +
+                        moment().format("HH:mm:ss") +
+                        " " +
+                        "]" +
+                        " " +
+                        "=>" +
+                        " " +
+                        colors.FgGreen,
+                        "generate username :" + " " + username,
+                        colors.Reset
+                    );
+                    await console.log(
+                        "[" +
+                        " " +
+                        moment().format("HH:mm:ss") +
+                        " " +
+                        "]" +
+                        " " +
+                        "=>" +
+                        " " +
+                        colors.FgGreen,
+                        "Name :" + " " + name,
+                        colors.Reset
+                    );
+                    if (username.includes("-") !== true) {
+                        await console.log(
+                            "[" +
+                            " " +
+                            moment().format("HH:mm:ss") +
+                            " " +
+                            "]" +
+                            " " +
+                            "=>" +
+                            " " +
+                            colors.FgGreen,
+                            "Try to register",
+                            colors.Reset
+                        );
+                        const Cookie = await getCookie.functionGetCookie(user_agent);
+                        const csrfToken = Cookie[7].split(';')[0];
+                        const rur = Cookie[8].split(';')[0];
+                        const mid = Cookie[9].split(';')[0];
+                        await delay(delaYY);  //normally and safe 600000
+                        const regist = await functionRegister(username, csrfToken, rur, mid, user_agent, prox);
 
 
-                    if (regist.account_created === true) {
-                        await console.log(
-                            "[" +
-                            " " +
-                            moment().format("HH:mm:ss") +
-                            " " +
-                            "]" +
-                            " " +
-                            "=>" +
-                            " " +
-                            colors.FgGreen,
-                            `Email server : generator.email/aminudin.me/${username}`,
-                            colors.Reset
-                        );
-                        await console.log(
-                            "[" +
-                            " " +
-                            moment().format("HH:mm:ss") +
-                            " " +
-                            "]" +
-                            " " +
-                            "=>" +
-                            " " +
-                            colors.FgGreen,
-                            "Success Register",
-                            colors.Reset
-                        );
-                        await console.log(
-                            "[" +
-                            " " +
-                            moment().format("HH:mm:ss") +
-                            " " +
-                            "]" +
-                            " " +
-                            "=>" +
-                            " " +
-                            colors.FgGreen,
-                            "Message : ",
-                            regist,
-                            colors.Reset
-                        );
-                        if (regist.account_created) {
+                        if (regist.account_created === true) {
                             await console.log(
                                 "[" +
                                 " " +
@@ -210,14 +190,37 @@ const genSes = length =>
                                 "=>" +
                                 " " +
                                 colors.FgGreen,
-                                `Try to login with account : ${username}`,
+                                `Email server : generator.email/aminudin.me/${username}`,
                                 colors.Reset
                             );
-                            await delay(10000);
-                            const LoginToDO = await login.functionLogin(username, "berak321amin", csrfToken, rur, mid, user_agent);
-                            const getCookies = await login.functionGetCookie(username, "berak321amin", csrfToken, rur, mid, user_agent);
-
-                            if (LoginToDO.authenticated === true) {
+                            await console.log(
+                                "[" +
+                                " " +
+                                moment().format("HH:mm:ss") +
+                                " " +
+                                "]" +
+                                " " +
+                                "=>" +
+                                " " +
+                                colors.FgGreen,
+                                "Success Register",
+                                colors.Reset
+                            );
+                            await console.log(
+                                "[" +
+                                " " +
+                                moment().format("HH:mm:ss") +
+                                " " +
+                                "]" +
+                                " " +
+                                "=>" +
+                                " " +
+                                colors.FgGreen,
+                                "Message : ",
+                                regist,
+                                colors.Reset
+                            );
+                            if (regist.account_created) {
                                 await console.log(
                                     "[" +
                                     " " +
@@ -228,15 +231,14 @@ const genSes = length =>
                                     "=>" +
                                     " " +
                                     colors.FgGreen,
-                                    `Login success!`,
+                                    `Try to login with account : ${username}`,
                                     colors.Reset
                                 );
-                                if (choiseDb.toLowerCase() === 'y') {
-                                    const post = {
-                                        username: username,
-                                        password: "berak321amin",
-                                        account_id: regist.user_id
-                                    };
+                                await delay(10000);
+                                const LoginToDO = await login.functionLogin(username, "berak321amin", csrfToken, rur, mid, user_agent);
+                                const getCookies = await login.functionGetCookie(username, "berak321amin", csrfToken, rur, mid, user_agent);
+
+                                if (LoginToDO.authenticated === true) {
                                     await console.log(
                                         "[" +
                                         " " +
@@ -247,90 +249,140 @@ const genSes = length =>
                                         "=>" +
                                         " " +
                                         colors.FgGreen,
-                                        "insert to database",
+                                        `Login success!`,
                                         colors.Reset
                                     );
-                                    delay(5000);
-                                    const query = await connection.query(
-                                        "INSERT INTO user SET ?",
-                                        post,
-                                        function (error, results, fields) {
-                                            if (error) throw error;
-                                            // Neat!
-                                        }
-                                    );
-                                    await console.log(
-                                        "[" +
-                                        " " +
-                                        moment().format("HH:mm:ss") +
-                                        " " +
-                                        "]" +
-                                        " " +
-                                        "=>" +
-                                        " " +
-                                        colors.FgGreen,
-                                        "Success!",
-                                        query.values,
-                                        colors.Reset
-                                    );
-                                } else {
-                                    await console.log(
-                                        "[" +
-                                        " " +
-                                        moment().format("HH:mm:ss") +
-                                        " " +
-                                        "]" +
-                                        " " +
-                                        "=>" +
-                                        " " +
-                                        colors.FgGreen,
-                                        "Format account : username|password|account_id",
-                                        colors.Reset
-                                    );
-                                    await console.log(
-                                        "[" +
-                                        " " +
-                                        moment().format("HH:mm:ss") +
-                                        " " +
-                                        "]" +
-                                        " " +
-                                        "=>" +
-                                        " " +
-                                        colors.FgGreen,
-                                        "Create file : result_account.txt",
-                                        colors.Reset
-                                    );
-                                    const post = {
-                                        username: username,
-                                        password: "berak321amin",
-                                        account_id: regist.user_id
-                                    };
-                                    await fs.appendFile(
-                                        "result_account.txt",
-                                        `${post.username}|${post.password}|${post.account_id}\n`,
-                                        "utf-8"
-                                    );
-                                    await console.log(
-                                        "[" +
-                                        " " +
-                                        moment().format("HH:mm:ss") +
-                                        " " +
-                                        "]" +
-                                        " " +
-                                        "=>" +
-                                        " " +
-                                        colors.FgGreen,
-                                        "Success!",
-                                        colors.Reset
-                                    );
+                                    if (choiseDb.toLowerCase() === 'y') {
+                                        const post = {
+                                            username: username,
+                                            password: "berak321amin",
+                                            account_id: regist.user_id
+                                        };
+                                        await console.log(
+                                            "[" +
+                                            " " +
+                                            moment().format("HH:mm:ss") +
+                                            " " +
+                                            "]" +
+                                            " " +
+                                            "=>" +
+                                            " " +
+                                            colors.FgGreen,
+                                            "insert to database",
+                                            colors.Reset
+                                        );
+                                        delay(5000);
+                                        const query = await connection.query(
+                                            "INSERT INTO user SET ?",
+                                            post,
+                                            function (error, results, fields) {
+                                                if (error) throw error;
+                                                // Neat!
+                                            }
+                                        );
+                                        await console.log(
+                                            "[" +
+                                            " " +
+                                            moment().format("HH:mm:ss") +
+                                            " " +
+                                            "]" +
+                                            " " +
+                                            "=>" +
+                                            " " +
+                                            colors.FgGreen,
+                                            "Success!",
+                                            query.values,
+                                            colors.Reset
+                                        );
+                                    } else {
+                                        await console.log(
+                                            "[" +
+                                            " " +
+                                            moment().format("HH:mm:ss") +
+                                            " " +
+                                            "]" +
+                                            " " +
+                                            "=>" +
+                                            " " +
+                                            colors.FgGreen,
+                                            "Format account : username|password|account_id",
+                                            colors.Reset
+                                        );
+                                        await console.log(
+                                            "[" +
+                                            " " +
+                                            moment().format("HH:mm:ss") +
+                                            " " +
+                                            "]" +
+                                            " " +
+                                            "=>" +
+                                            " " +
+                                            colors.FgGreen,
+                                            "Create file : result_account.txt",
+                                            colors.Reset
+                                        );
+                                        const post = {
+                                            username: username,
+                                            password: "berak321amin",
+                                            account_id: regist.user_id
+                                        };
+                                        await fs.appendFile(
+                                            "result_account.txt",
+                                            `${post.username}|${post.password}|${post.account_id}\n`,
+                                            "utf-8"
+                                        );
+                                        await console.log(
+                                            "[" +
+                                            " " +
+                                            moment().format("HH:mm:ss") +
+                                            " " +
+                                            "]" +
+                                            " " +
+                                            "=>" +
+                                            " " +
+                                            colors.FgGreen,
+                                            "Success!",
+                                            colors.Reset
+                                        );
+                                    }
+
                                 }
-
                             }
+
+
+                            await console.log("");
+                            await console.log("");
+                        } else {
+                            await console.log(
+                                "[" +
+                                " " +
+                                moment().format("HH:mm:ss") +
+                                " " +
+                                "]" +
+                                " " +
+                                "=>" +
+                                " " +
+                                colors.FgRed,
+                                "Failed Register",
+                                colors.Reset
+                            );
+                            await console.log(
+                                "[" +
+                                " " +
+                                moment().format("HH:mm:ss") +
+                                " " +
+                                "]" +
+                                " " +
+                                "=>" +
+                                " " +
+                                colors.FgGreen,
+                                "Message : ",
+                                regist,
+                                colors.Reset
+                            );
+                            await console.log("");
+                            await console.log("");
                         }
-
-
-                        await console.log("");
-                        await console.log("");
                     } else {
                         await console.log(
                             "[" +
@@ -342,7 +394,7 @@ const genSes = length =>
                             "=>" +
                             " " +
                             colors.FgRed,
-                            "Failed Register",
+                            "Failed",
                             colors.Reset
                         );
                         await console.log(
@@ -354,9 +406,8 @@ const genSes = length =>
                             " " +
                             "=>" +
                             " " +
-                            colors.FgGreen,
-                            "Message : ",
-                            regist,
+                            colors.FgRed,
+                            "Message : username include character not allowed for register",
                             colors.Reset
                         );
                         await console.log("");
@@ -373,41 +424,15 @@ const genSes = length =>
                         "=>" +
                         " " +
                         colors.FgRed,
-                        "Failed",
+                        "Proxy not working :" + " " + prox,
                         colors.Reset
                     );
-                    await console.log(
-                        "[" +
-                        " " +
-                        moment().format("HH:mm:ss") +
-                        " " +
-                        "]" +
-                        " " +
-                        "=>" +
-                        " " +
-                        colors.FgRed,
-                        "Message : username include character not allowed for register",
-                        colors.Reset
-                    );
-                    await console.log("");
-                    await console.log("");
                 }
+
 
             }
         })
     } catch (e) {
-        await console.log(
-            "[" +
-            " " +
-            moment().format("HH:mm:ss") +
-            " " +
-            "]" +
-            " " +
-            "=>" +
-            " " +
-            colors.FgRed,
-            "Owh shit, theres any problem. Wait and create again.",
-            colors.Reset
-        );
+        console.log(e)
     }
 })();
