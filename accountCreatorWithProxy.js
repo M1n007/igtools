@@ -13,7 +13,7 @@ const fs = require("async-file");
 const UA = require('./lib/utils/uaGen');
 const fss = require("fs");
 const ProxyCheck = require('./lib/proxyCheck');
-const HttpsProxyAgent = require('https-proxy-agent');
+const tunnel = require('tunnel');
 require('dotenv').config()
 
 console.log("");
@@ -39,15 +39,22 @@ const connection = mysql.createConnection({
 });
 
 const functionRegister = async (username, csrf, rur, mid, user_agent, prox) =>
-    new Promise((resolve, reject) => {
+    new Promise(function (resolve, reject) {
+        var tunnelingAgent = tunnel.httpsOverHttp({
+            proxy: {
+                host: prox.split(':')[0],
+                port: prox.split(':')[1],
+            }
+        });
+
         const params = new URLSearchParams();
         params.append("email", `${username}@aminudin.me`);
         params.append("password", "berak321amin");
         params.append("username", username);
         params.append("first_name", `${username.split('1')[0]} ${username.split('1')[1]}`);
-        params.append("client_id", mid);
+        // params.append("client_id", mid);
         params.append("seamless_login_enabled", 1);
-        params.append("gdpr_s", [0, 2, 0, null]);
+        // params.append("gdpr_s", [0, 2, 0, null]);
         params.append("tos_version", "eu");
         params.append("opt_into_one_tap", false);
 
@@ -69,51 +76,93 @@ const functionRegister = async (username, csrf, rur, mid, user_agent, prox) =>
                 'authority': 'www.instagram.com',
                 'sec-fetch-site': 'same-origin'
             },
-            agent: new HttpsProxyAgent(`http://${prox}`),
-            timeout: 20000
+            agent: tunnelingAgent
         })
             .then(response => response.json())
-            .then(text => {
+            .then(text =>
                 resolve(text)
-            })
-            .catch(err => {
-                reject(err)
-            });
+            )
+            .catch(err => reject(err));
+
     });
 
-
 (async function main() {
-    try {
-        await console.log("");
-        await console.log("");
-        await fss.readFile(fileName, async function (err, data) {
-            if (err) throw err;
-            const array = data
-                .toString()
-                .replace(/\r\n|\r|\n/g, " ")
-                .split(" ");
 
-            for (let proxy in array) {
-                const prox = await array[proxy];
-                await console.log(
-                    "[" +
-                    " " +
-                    moment().format("HH:mm:ss") +
-                    " " +
-                    "]" +
-                    " " +
-                    "=>" +
-                    " " +
-                    colors.FgGreen,
-                    "Checking proxy...." + " " + prox,
-                    colors.Reset
-                );
+    await console.log("");
+    await console.log("");
+    await fss.readFile(fileName, async function (err, data) {
+        if (err) throw err;
+        const array = data
+            .toString()
+            .replace(/\r\n|\r|\n/g, " ")
+            .split(" ");
 
-                const group = await ProxyCheck.getGroups(prox);
-                await delay(5000);
-                while (true) {
-                    const getResults = await ProxyCheck.getResult(group);
-                    if (getResults.working === 1) {
+        for (let proxy in array) {
+            const prox = await array[proxy];
+            await console.log(
+                "[" +
+                " " +
+                moment().format("HH:mm:ss") +
+                " " +
+                "]" +
+                " " +
+                "=>" +
+                " " +
+                colors.FgGreen,
+                "Checking proxy...." + " " + prox,
+                colors.Reset
+            );
+
+            const group = await ProxyCheck.getGroups(prox);
+            await delay(5000);
+            while (true) {
+                const getResults = await ProxyCheck.getResult(group);
+                if (getResults.working === 1) {
+                    await console.log(
+                        "[" +
+                        " " +
+                        moment().format("HH:mm:ss") +
+                        " " +
+                        "]" +
+                        " " +
+                        "=>" +
+                        " " +
+                        colors.FgGreen,
+                        "Proxy working perfectly :" + " " + prox,
+                        colors.Reset
+                    );
+
+                    const user_agent = await UA.returnUA();
+
+                    const username = UsernameGenerator.generateUsername("1");
+                    const name = `${username.split('1')[0]} ${username.split('1')[1]}`;
+                    await console.log(
+                        "[" +
+                        " " +
+                        moment().format("HH:mm:ss") +
+                        " " +
+                        "]" +
+                        " " +
+                        "=>" +
+                        " " +
+                        colors.FgGreen,
+                        "generate username :" + " " + username,
+                        colors.Reset
+                    );
+                    await console.log(
+                        "[" +
+                        " " +
+                        moment().format("HH:mm:ss") +
+                        " " +
+                        "]" +
+                        " " +
+                        "=>" +
+                        " " +
+                        colors.FgGreen,
+                        "Name :" + " " + name,
+                        colors.Reset
+                    );
+                    if (username.includes("-") !== true) {
                         await console.log(
                             "[" +
                             " " +
@@ -124,77 +173,34 @@ const functionRegister = async (username, csrf, rur, mid, user_agent, prox) =>
                             "=>" +
                             " " +
                             colors.FgGreen,
-                            "Proxy working perfectly :" + " " + prox,
+                            "Try to register",
                             colors.Reset
                         );
-
-                        const user_agent = await UA.returnUA();
-
-                        const username = UsernameGenerator.generateUsername("1");
-                        const name = `${username.split('1')[0]} ${username.split('1')[1]}`;
-                        await console.log(
-                            "[" +
-                            " " +
-                            moment().format("HH:mm:ss") +
-                            " " +
-                            "]" +
-                            " " +
-                            "=>" +
-                            " " +
-                            colors.FgGreen,
-                            "generate username :" + " " + username,
-                            colors.Reset
-                        );
-                        await console.log(
-                            "[" +
-                            " " +
-                            moment().format("HH:mm:ss") +
-                            " " +
-                            "]" +
-                            " " +
-                            "=>" +
-                            " " +
-                            colors.FgGreen,
-                            "Name :" + " " + name,
-                            colors.Reset
-                        );
-                        if (username.includes("-") !== true) {
-                            await console.log(
-                                "[" +
-                                " " +
-                                moment().format("HH:mm:ss") +
-                                " " +
-                                "]" +
-                                " " +
-                                "=>" +
-                                " " +
-                                colors.FgGreen,
-                                "Try to register",
-                                colors.Reset
-                            );
-                            const Cookie = await getCookie.functionGetCookie(user_agent);
-                            const csrfToken = Cookie[7].split(';')[0];
-                            const rur = Cookie[8].split(';')[0];
-                            const mid = Cookie[9].split(';')[0];
-                            await delay(delaYY);  //normally and safe 600000
+                        const Cookie = await getCookie.functionGetCookie(user_agent);
+                        const csrfToken = Cookie[7].split(';')[0];
+                        const rur = Cookie[8].split(';')[0];
+                        const mid = Cookie[9].split(';')[0];
+                        await delay(delaYY);  //normally and safe 600000
+                        try {
                             const regist = await functionRegister(username, csrfToken, rur, mid, user_agent, prox);
-                            if (!regist) {
-                                await console.log(
-                                    "[" +
-                                    " " +
-                                    moment().format("HH:mm:ss") +
-                                    " " +
-                                    "]" +
-                                    " " +
-                                    "=>" +
-                                    " " +
-                                    colors.FgRed,
-                                    `Theres have any problem. Check your proxy and try again`,
-                                    colors.Reset
-                                );
-                            }
+                            // console.log(regist)
+                            // if (!regist) {
+                            //     await console.log(
+                            //         "[" +
+                            //         " " +
+                            //         moment().format("HH:mm:ss") +
+                            //         " " +
+                            //         "]" +
+                            //         " " +
+                            //         "=>" +
+                            //         " " +
+                            //         colors.FgRed,
+                            //         `Theres have any problem. Check your proxy and try again`,
+                            //         colors.Reset
+                            //     );
+                            // }
 
-                            if (regist.account_created === true) {
+                            if (regist && regist.account_created === true) {
                                 await console.log(
                                     "[" +
                                     " " +
@@ -235,7 +241,7 @@ const functionRegister = async (username, csrf, rur, mid, user_agent, prox) =>
                                     regist,
                                     colors.Reset
                                 );
-                                if (regist.account_created) {
+                                if (regist && regist.account_created) {
                                     await console.log(
                                         "[" +
                                         " " +
@@ -398,7 +404,7 @@ const functionRegister = async (username, csrf, rur, mid, user_agent, prox) =>
                                 await console.log("");
                                 await console.log("");
                             }
-                        } else {
+                        } catch (e) {
                             await console.log(
                                 "[" +
                                 " " +
@@ -409,26 +415,12 @@ const functionRegister = async (username, csrf, rur, mid, user_agent, prox) =>
                                 "=>" +
                                 " " +
                                 colors.FgRed,
-                                "Failed",
-                                colors.Reset
-                            );
-                            await console.log(
-                                "[" +
-                                " " +
-                                moment().format("HH:mm:ss") +
-                                " " +
-                                "]" +
-                                " " +
-                                "=>" +
-                                " " +
-                                colors.FgRed,
-                                "Message : username include character not allowed for register",
+                                "Message : theres have any problem, try again.", e,
                                 colors.Reset
                             );
                             await console.log("");
                             await console.log("");
                         }
-                        break;
                     } else {
                         await console.log(
                             "[" +
@@ -440,18 +432,47 @@ const functionRegister = async (username, csrf, rur, mid, user_agent, prox) =>
                             "=>" +
                             " " +
                             colors.FgRed,
-                            "Proxy not working :" + " " + prox,
+                            "Failed",
+                            colors.Reset
+                        );
+                        await console.log(
+                            "[" +
+                            " " +
+                            moment().format("HH:mm:ss") +
+                            " " +
+                            "]" +
+                            " " +
+                            "=>" +
+                            " " +
+                            colors.FgRed,
+                            "Message : username include character not allowed for register",
                             colors.Reset
                         );
                         await console.log("");
                         await console.log("");
-                        break;
                     }
+                    break;
+                } else {
+                    await console.log(
+                        "[" +
+                        " " +
+                        moment().format("HH:mm:ss") +
+                        " " +
+                        "]" +
+                        " " +
+                        "=>" +
+                        " " +
+                        colors.FgRed,
+                        "Proxy not working :" + " " + prox,
+                        colors.Reset
+                    );
+                    await console.log("");
+                    await console.log("");
+                    break;
                 }
-
             }
-        })
-    } catch (e) {
 
-    }
+        }
+    });
+
 })();
