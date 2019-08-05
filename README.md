@@ -16,6 +16,7 @@ Script Detailed.
 | :---         |  :---     |   :---     | :---     |
 | Account Creator| For create multiple instagram account| accountCreator.js |  develop |
 | Account Creator ( Edit ) | For create multiple instagram account with edit bio etc. | accountCreatorWithEdit.js | develop |
+| Account Creator ( With Proxy ) | For create multiple instagram account using proxy | accountCreatorWithProxy.js | develop |
 | Auto Followers | for auto follow ( data from database ) | autoFollowers.js | develop |
 | Auto Followers FROM Txt | for auto follow ( data from txt )  | autoFollowersWithTxt.js | develop |
 | Account Creator With Proxy | For create multiple account with proxy  | - | - |
